@@ -39,6 +39,7 @@ const MONTH_NAMES = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Jui
 
 document.addEventListener("DOMContentLoaded", () => {
   initUI();
+  initStarsAnimation();
   initMap();
   loadWilayas();
 });
@@ -56,7 +57,10 @@ function initUI() {
 
   // Global helper to show welcome screen
   window.showWelcomeScreen = function() {
-    if (splash) splash.classList.remove("hidden");
+    if (splash) {
+      splash.classList.remove("hidden");
+      if (window.resumeStarsAnimation) window.resumeStarsAnimation();
+    }
   };
 
   // Tab Switching
@@ -959,4 +963,112 @@ function renderHourlyChart(data) {
       }
     }
   });
+}
+
+// Animated Twinkling Constellations & Meteorological Starfield
+function initStarsAnimation() {
+  const canvas = document.getElementById("stars-canvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  let width = (canvas.width = window.innerWidth);
+  let height = (canvas.height = window.innerHeight);
+
+  window.addEventListener("resize", () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  const numStars = Math.min(130, Math.max(65, Math.floor((width * height) / 11000)));
+  const stars = [];
+  const colors = [
+    { r: 251, g: 211, b: 141 }, // Gold / Amber
+    { r: 99, g: 179, b: 237 },  // Copernicus Cyan
+    { r: 255, g: 255, b: 255 },  // Pure White
+    { r: 129, g: 230, b: 217 }   // Hydro Aquamarine
+  ];
+
+  for (let i = 0; i < numStars; i++) {
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    stars.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.35,
+      vy: (Math.random() - 0.5) * 0.35,
+      radius: Math.random() * 2.2 + 0.8,
+      baseAlpha: Math.random() * 0.5 + 0.35,
+      twinkleSpeed: Math.random() * 0.025 + 0.01,
+      phase: Math.random() * Math.PI * 2,
+      color: c
+    });
+  }
+
+  let animationFrameId = null;
+  const splash = document.getElementById("welcome-splash-screen");
+
+  function render() {
+    if (splash && splash.classList.contains("hidden")) {
+      animationFrameId = null;
+      return;
+    }
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Update & draw stars
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i];
+      s.x += s.vx;
+      s.y += s.vy;
+      s.phase += s.twinkleSpeed;
+
+      // Wrap around screen edges
+      if (s.x < 0) s.x = width;
+      if (s.x > width) s.x = 0;
+      if (s.y < 0) s.y = height;
+      if (s.y > height) s.y = 0;
+
+      const alpha = s.baseAlpha + Math.sin(s.phase) * 0.35;
+      const clampedAlpha = Math.max(0.12, Math.min(1, alpha));
+
+      // Draw star glow
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${clampedAlpha})`;
+      ctx.shadowBlur = s.radius > 1.8 ? 14 : 7;
+      ctx.shadowColor = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, 0.85)`;
+      ctx.fill();
+
+      // Connect nearby stars with faint constellation lines
+      for (let j = i + 1; j < stars.length; j++) {
+        const s2 = stars[j];
+        const dx = s.x - s2.x;
+        const dy = s.y - s2.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 95) {
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(s2.x, s2.y);
+          const lineAlpha = (1 - dist / 95) * 0.16;
+          ctx.strokeStyle = `rgba(99, 179, 237, ${lineAlpha})`;
+          ctx.lineWidth = 0.7;
+          ctx.shadowBlur = 0;
+          ctx.stroke();
+        }
+      }
+    }
+
+    animationFrameId = requestAnimationFrame(render);
+  }
+
+  // Start rendering loop
+  render();
+
+  // Expose starter function so reopening the welcome screen resumes the loop
+  window.resumeStarsAnimation = function() {
+    if (!animationFrameId) {
+      render();
+    }
+  };
 }

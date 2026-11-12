@@ -932,21 +932,21 @@ body {
   }
 }
 
-/* Welcome Splash Screen */
+/* Welcome Splash Screen (Glassmorphism & Luminous Constellations) */
 .welcome-splash-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle at 50% 25%, #0f2b52 0%, #061426 70%, #020914 100%);
+  background: radial-gradient(circle at 50% 20%, #0d284f 0%, #061324 60%, #020712 100%);
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow-y: auto;
   padding: 24px;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
 }
 
 .welcome-splash-overlay.hidden {
@@ -955,18 +955,31 @@ body {
   pointer-events: none;
 }
 
+/* Background Animated Canvas */
+.stars-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .welcome-splash-content {
-  max-width: 960px;
+  position: relative;
+  z-index: 2;
+  max-width: 980px;
   width: 100%;
   margin: auto;
   text-align: center;
-  animation: splashFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: splashFadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes splashFadeIn {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.97);
+    transform: translateY(30px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -979,19 +992,20 @@ body {
   flex-direction: column;
   gap: 6px;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .splash-badge-flag {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   color: #e2e8f0;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1px;
-  padding: 6px 18px;
-  border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 6px 20px;
+  border-radius: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
 }
 
 .splash-badge-inst {
@@ -1000,13 +1014,33 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Glassmorphism Central Card */
 .splash-hero-box {
-  background: rgba(10, 25, 47, 0.88);
-  border: 1px solid rgba(230, 161, 23, 0.45);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.7), 0 0 100px rgba(230, 161, 23, 0.12);
-  border-radius: 16px;
-  padding: 44px 38px;
-  backdrop-filter: blur(14px);
+  background: rgba(8, 20, 39, 0.82);
+  border: 1px solid rgba(230, 161, 23, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 100px rgba(230, 161, 23, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 42px 40px;
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glowing Border Accent */
+.splash-hero-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e6a117, #63b3ed, transparent);
+  animation: borderGlow 4s linear infinite;
+}
+
+@keyframes borderGlow {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(50%); }
 }
 
 .splash-greeting-chip {
@@ -1016,65 +1050,117 @@ body {
   background: rgba(230, 161, 23, 0.16);
   border: 1px solid var(--copernicus-gold);
   color: #fbd38d;
-  padding: 5px 16px;
+  padding: 5px 18px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.8px;
-  margin-bottom: 18px;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  box-shadow: 0 0 16px rgba(230, 161, 23, 0.25);
 }
 
+/* Shimmering Animated Title */
 .splash-main-title {
   color: #ffffff;
-  font-size: 38px;
+  font-size: 40px;
   font-weight: 800;
   letter-spacing: -0.5px;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #ffffff 30%, #fbd38d 100%);
+  background: linear-gradient(90deg, #ffffff 0%, #ffffff 35%, #fbd38d 50%, #ffffff 65%, #ffffff 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: textShimmer 5s ease-in-out infinite;
 }
 
-.splash-title-ar {
+@keyframes textShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.splash-subtitle-fr {
   color: #63b3ed;
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   margin-bottom: 18px;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .splash-description {
   color: #cbd5e0;
-  font-size: 15px;
+  font-size: 14.5px;
   line-height: 1.6;
-  max-width: 760px;
-  margin: 0 auto 32px auto;
+  max-width: 800px;
+  margin: 0 auto 26px auto;
 }
 
+/* Scientific Indicators Ribbon */
+.splash-stats-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stat-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(99, 179, 237, 0.25);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+}
+
+.stat-pill:hover {
+  border-color: #63b3ed;
+  background: rgba(99, 179, 237, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(99, 179, 237, 0.2);
+}
+
+.stat-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fbd38d;
+  font-family: var(--font-mono);
+}
+
+.stat-desc {
+  font-size: 11px;
+  color: #cbd5e0;
+  font-weight: 500;
+}
+
+/* Highlights Grid */
 .splash-features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
-  margin-bottom: 34px;
+  margin-bottom: 30px;
   text-align: left;
 }
 
 .splash-feat-card {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 10px;
-  padding: 18px;
-  transition: transform 0.2s, border-color 0.2s;
+  border-radius: 12px;
+  padding: 20px;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .splash-feat-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(230, 161, 23, 0.4);
+  transform: translateY(-4px);
+  border-color: rgba(230, 161, 23, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(230, 161, 23, 0.15);
 }
 
 .splash-feat-card .feat-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
+  font-size: 26px;
+  margin-bottom: 10px;
 }
 
 .splash-feat-card h4 {
@@ -1087,34 +1173,54 @@ body {
 .splash-feat-card p {
   color: #a0aec0;
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
+/* Glowing Pulsing Button */
 .splash-cta-wrapper {
   margin-bottom: 22px;
 }
 
 .btn-splash-enter {
-  background: linear-gradient(135deg, #e6a117 0%, #d69e2e 100%);
+  position: relative;
+  background: linear-gradient(135deg, #e6a117 0%, #d69e2e 60%, #b7791f 100%);
   color: #07152b;
   font-size: 16px;
   font-weight: 800;
-  padding: 16px 38px;
-  border-radius: 30px;
+  padding: 16px 42px;
+  border-radius: 35px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 22px rgba(230, 161, 23, 0.5);
-  transition: all 0.25s ease;
+  box-shadow: 0 6px 24px rgba(230, 161, 23, 0.55), 0 0 35px rgba(230, 161, 23, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   letter-spacing: 0.3px;
+  overflow: hidden;
 }
 
 .btn-splash-enter:hover {
   background: #f6ad55;
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 28px rgba(230, 161, 23, 0.7);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(230, 161, 23, 0.75), 0 0 50px rgba(230, 161, 23, 0.4);
+}
+
+.btn-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shineSweep 3s infinite;
+}
+
+@keyframes shineSweep {
+  0% { left: -100%; }
+  40% { left: 150%; }
+  100% { left: 150%; }
 }
 
 .splash-footer-note {
   color: #718096;
   font-size: 12px;
+  letter-spacing: 0.3px;
 }

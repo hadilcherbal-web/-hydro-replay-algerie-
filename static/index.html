@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   
   <!-- Custom Stylesheet (Copernicus C3S Theme) -->
-  <link rel="stylesheet" href="/static/css/styles.css?v=3.0">
+  <link rel="stylesheet" href="/static/css/styles.css?v=4.0">
   
   <!-- Chart.js for High-Precision Meteorological Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,56 +18,82 @@
 
   <!-- Initial Welcome Splash Screen: Bienvenue, Ingénieure Cherbal Hadil -->
   <div id="welcome-splash-screen" class="welcome-splash-overlay">
+    <!-- Animated Twinkling Constellations & Meteorological Particles Canvas -->
+    <canvas id="stars-canvas" class="stars-canvas"></canvas>
+
     <div class="welcome-splash-content">
       
       <div class="splash-header-crest">
         <span class="splash-badge-flag">🇩🇿 RÉPUBLIQUE ALGÉRIENNE DÉMOCRATIQUE ET POPULAIRE</span>
-        <span class="splash-badge-inst">Ministère de l'Enseignement Supérieur &bull; Projet d'Ingénierie Hydraulique</span>
+        <span class="splash-badge-inst">Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</span>
       </div>
 
       <div class="splash-hero-box">
         <div class="splash-greeting-chip">
           <span class="chip-star">✨</span>
-          <span>ESPACE D'INGÉNIERIE & ÉTUDES HYDRO-MÉTÉOROLOGIQUES</span>
+          <span>ESPACE D'INGÉNIERIE & ÉTUDES HYDRO-CLIMATIQUES</span>
         </div>
 
         <h1 class="splash-main-title">
           Bienvenue, Ingénieure Cherbal Hadil
         </h1>
-        <div class="splash-title-ar">المهندسة شربال هديل &bull; Ing. CHERBAL Hadil</div>
+        <div class="splash-subtitle-fr">
+          Ingénierie des Ressources en Eau &bull; Sciences de l'Environnement & Climatologie
+        </div>
 
         <p class="splash-description">
-          Plateforme Scientifique d'Exploration, d'Analyse et de Modélisation des Précipitations Historiques en Algérie (1900 - 2025), conçue selon les standards scientifiques du programme européen <strong>Copernicus Weather Replay</strong>.
+          Plateforme Scientifique d'Exploration, de Modélisation et de Reconstitution des Précipitations Historiques en Algérie (1900 - 2025), conçue selon les standards scientifiques du programme européen <strong>Copernicus Weather Replay</strong>.
         </p>
+
+        <!-- Scientific Indicators Ribbon -->
+        <div class="splash-stats-ribbon">
+          <div class="stat-pill">
+            <span class="stat-num">125</span>
+            <span class="stat-desc">Années d'Historique (1900-2025)</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-num">58</span>
+            <span class="stat-desc">Wilayas & Communes Couvertes</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-num">0.1°</span>
+            <span class="stat-desc">Haute Résolution (~9 km ERA5-Land)</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-num">4D-Var</span>
+            <span class="stat-desc">Assimilation Physique ECMWF</span>
+          </div>
+        </div>
 
         <!-- Highlights Grid -->
         <div class="splash-features-grid">
           <div class="splash-feat-card">
             <div class="feat-icon">⏳</div>
-            <h4>125 Ans d'Histoire Climatique</h4>
-            <p>Chronologie pluvieuse continue de 1900 à 2025 pour les 58 Wilayas et communes d'Algérie.</p>
+            <h4>Chronologie Séculaire Continue</h4>
+            <p>Séries temporelles ininterrompues de 1900 à 2025 pour l'analyse des cycles pluvieux décennaux et des sécheresses historiques.</p>
           </div>
           <div class="splash-feat-card">
             <div class="feat-icon">🛰️</div>
-            <h4>Données Copernicus ERA5-Land</h4>
-            <p>Réanalyses physiques atmosphériques ECMWF (0.1° / ~9 km) et archives historiques WMO / GPCC v2022.</p>
+            <h4>Réanalyses Copernicus ERA5</h4>
+            <p>Données atmosphériques de pointe réanalysées par l'ECMWF, associant mesures in-situ validées WMO et radiométrie satellitaire.</p>
           </div>
           <div class="splash-feat-card">
             <div class="feat-icon">🗺️</div>
-            <h4>Cartographie & Analyses</h4>
-            <p>Répartition spatiale nationale, étages bioclimatiques (Emberger), tendances décennales et bulletin imprimable.</p>
+            <h4>Cartographie Dynamique & SIG</h4>
+            <p>Distribution spatiale interactive sur l'ensemble de l'Algérie, classification bioclimatique d'Emberger et bulletin officiel imprimable.</p>
           </div>
         </div>
 
         <!-- Action CTA -->
         <div class="splash-cta-wrapper">
           <button id="btn-enter-platform" class="btn-splash-enter">
+            <span class="btn-shine"></span>
             🚀 Accéder à la Plateforme &bull; Hydro-Replay Algérie
           </button>
         </div>
 
         <div class="splash-footer-note">
-          Conçu et réalisé par <strong>l'Ingénieure Cherbal Hadil (المهندسة شربال هديل)</strong> &bull; Données WMO & Copernicus C3S
+          Conception & Modélisation Hydrologique par <strong>l'Ingénieure CHERBAL Hadil</strong> &bull; Données Officielles WMO, GPCC & Copernicus C3S
         </div>
       </div>
 
@@ -559,6 +585,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
   <!-- Main Application Script -->
-  <script src="/static/js/app.js?v=3.0"></script>
+  <script src="/static/js/app.js?v=4.0"></script>
 </body>
 </html>
