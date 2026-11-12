@@ -9,12 +9,70 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   
   <!-- Custom Stylesheet (Copernicus C3S Theme) -->
-  <link rel="stylesheet" href="/static/css/styles.css?v=2.3">
+  <link rel="stylesheet" href="/static/css/styles.css?v=3.0">
   
   <!-- Chart.js for High-Precision Meteorological Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
+  <!-- Initial Welcome Splash Screen: Bienvenue, Ingénieure Cherbal Hadil -->
+  <div id="welcome-splash-screen" class="welcome-splash-overlay">
+    <div class="welcome-splash-content">
+      
+      <div class="splash-header-crest">
+        <span class="splash-badge-flag">🇩🇿 RÉPUBLIQUE ALGÉRIENNE DÉMOCRATIQUE ET POPULAIRE</span>
+        <span class="splash-badge-inst">Ministère de l'Enseignement Supérieur &bull; Projet d'Ingénierie Hydraulique</span>
+      </div>
+
+      <div class="splash-hero-box">
+        <div class="splash-greeting-chip">
+          <span class="chip-star">✨</span>
+          <span>ESPACE D'INGÉNIERIE & ÉTUDES HYDRO-MÉTÉOROLOGIQUES</span>
+        </div>
+
+        <h1 class="splash-main-title">
+          Bienvenue, Ingénieure Cherbal Hadil
+        </h1>
+        <div class="splash-title-ar">المهندسة شربال هديل &bull; Ing. CHERBAL Hadil</div>
+
+        <p class="splash-description">
+          Plateforme Scientifique d'Exploration, d'Analyse et de Modélisation des Précipitations Historiques en Algérie (1900 - 2025), conçue selon les standards scientifiques du programme européen <strong>Copernicus Weather Replay</strong>.
+        </p>
+
+        <!-- Highlights Grid -->
+        <div class="splash-features-grid">
+          <div class="splash-feat-card">
+            <div class="feat-icon">⏳</div>
+            <h4>125 Ans d'Histoire Climatique</h4>
+            <p>Chronologie pluvieuse continue de 1900 à 2025 pour les 58 Wilayas et communes d'Algérie.</p>
+          </div>
+          <div class="splash-feat-card">
+            <div class="feat-icon">🛰️</div>
+            <h4>Données Copernicus ERA5-Land</h4>
+            <p>Réanalyses physiques atmosphériques ECMWF (0.1° / ~9 km) et archives historiques WMO / GPCC v2022.</p>
+          </div>
+          <div class="splash-feat-card">
+            <div class="feat-icon">🗺️</div>
+            <h4>Cartographie & Analyses</h4>
+            <p>Répartition spatiale nationale, étages bioclimatiques (Emberger), tendances décennales et bulletin imprimable.</p>
+          </div>
+        </div>
+
+        <!-- Action CTA -->
+        <div class="splash-cta-wrapper">
+          <button id="btn-enter-platform" class="btn-splash-enter">
+            🚀 Accéder à la Plateforme &bull; Hydro-Replay Algérie
+          </button>
+        </div>
+
+        <div class="splash-footer-note">
+          Conçu et réalisé par <strong>l'Ingénieure Cherbal Hadil (المهندسة شربال هديل)</strong> &bull; Données WMO & Copernicus C3S
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Top Copernicus EU Banner -->
   <header class="copernicus-top-banner">
@@ -27,11 +85,11 @@
         </div>
       </div>
       <div class="brand-sources">
-        <div class="engineer-header-chip">
+        <div class="engineer-header-chip" onclick="showWelcomeScreen()" style="cursor: pointer;" title="Afficher l'écran d'accueil">
           <span class="chip-icon">🎓</span>
           <div class="chip-text">
             <strong>المهندسة شربال هديل</strong>
-            <small>Ing. Cherbal Hadil</small>
+            <small>Ing. Cherbal Hadil &bull; 🏠 Accueil</small>
           </div>
         </div>
         <div class="source-pill">
@@ -501,6 +559,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
   <!-- Main Application Script -->
-  <script src="/static/js/app.js?v=2.2"></script>
+  <script src="/static/js/app.js?v=3.0"></script>
 </body>
 </html>

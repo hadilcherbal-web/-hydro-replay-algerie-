@@ -45,6 +45,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Initialize UI Event Listeners
 function initUI() {
+  // Welcome Splash Screen
+  const splash = document.getElementById("welcome-splash-screen");
+  const btnEnter = document.getElementById("btn-enter-platform");
+  if (btnEnter && splash) {
+    btnEnter.addEventListener("click", () => {
+      splash.classList.add("hidden");
+    });
+  }
+
+  // Global helper to show welcome screen
+  window.showWelcomeScreen = function() {
+    if (splash) splash.classList.remove("hidden");
+  };
+
   // Tab Switching
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
