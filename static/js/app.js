@@ -40,6 +40,7 @@ const MONTH_NAMES = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Jui
 document.addEventListener("DOMContentLoaded", () => {
   initUI();
   initStarsAnimation();
+  initHedoudaLightSpirit();
   initMap();
   loadWilayas();
 });
@@ -60,6 +61,7 @@ function initUI() {
     if (splash) {
       splash.classList.remove("hidden");
       if (window.resumeStarsAnimation) window.resumeStarsAnimation();
+      if (window.resumeHedoudaSpirit) window.resumeHedoudaSpirit();
     }
   };
 
@@ -1070,5 +1072,117 @@ function initStarsAnimation() {
     if (!animationFrameId) {
       render();
     }
+  };
+}
+
+// Hedouda Dynamic Luminescence Spirit & Interactive Reactive Illumination
+function initHedoudaLightSpirit() {
+  const box = document.getElementById("splash-hero-box");
+  const spirit = document.getElementById("hedouda-spirit");
+  const splash = document.getElementById("welcome-splash-screen");
+  if (!box || !spirit) return;
+
+  let time = 0;
+  let isMouseOver = false;
+  let mouseX = 0;
+  let mouseY = 0;
+
+  let currentX = 0;
+  let currentY = 0;
+
+  box.addEventListener("mousemove", (e) => {
+    const rect = box.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+    isMouseOver = true;
+  });
+
+  box.addEventListener("mouseleave", () => {
+    isMouseOver = false;
+  });
+
+  let spiritFrameId = null;
+
+  function loop() {
+    if (splash && splash.classList.contains("hidden")) {
+      spiritFrameId = null;
+      return;
+    }
+
+    const rect = box.getBoundingClientRect();
+    const width = Math.max(300, rect.width);
+    const height = Math.max(200, rect.height);
+
+    if (currentX === 0) {
+      currentX = width / 2;
+      currentY = height / 3;
+    }
+
+    time += 0.02;
+
+    // Target position: Smooth organic lemniscate / float motion or mouse tracking
+    let targetX, targetY;
+    if (isMouseOver) {
+      targetX = mouseX;
+      targetY = mouseY;
+    } else {
+      // Graceful organic celestial path across the rectangle
+      targetX = width * (0.5 + 0.38 * Math.sin(time * 0.75) * Math.cos(time * 0.35));
+      targetY = height * (0.5 + 0.36 * Math.sin(time * 0.6 + 1.2));
+    }
+
+    // Smooth inertia interpolation
+    currentX += (targetX - currentX) * 0.07;
+    currentY += (targetY - currentY) * 0.07;
+
+    const pctX = Math.max(5, Math.min(95, (currentX / width) * 100));
+    const pctY = Math.max(5, Math.min(95, (currentY / height) * 100));
+
+    // Dynamic chromatic shift depending on Hedouda's position:
+    // Left: Amber/Gold (#e6a117) -> Center: Hydro Cyan (#63b3ed) -> Right: Emerald/Turquoise (#38b2ac)
+    const normX = currentX / width;
+    let primaryColor, secondaryColor, glowColor, borderColor, shadowColor;
+
+    if (normX < 0.4) {
+      // Golden Amber Stage
+      primaryColor = "#e6a117";
+      secondaryColor = "#f6ad55";
+      glowColor = `rgba(230, 161, 23, ${0.24 + 0.08 * Math.sin(time * 1.5)})`;
+      borderColor = "rgba(230, 161, 23, 0.7)";
+      shadowColor = "rgba(230, 161, 23, 0.3)";
+    } else if (normX < 0.7) {
+      // Copernicus Cyan / Blue Stage
+      primaryColor = "#63b3ed";
+      secondaryColor = "#3182ce";
+      glowColor = `rgba(99, 179, 237, ${0.26 + 0.08 * Math.sin(time * 1.5)})`;
+      borderColor = "rgba(99, 179, 237, 0.7)";
+      shadowColor = "rgba(99, 179, 237, 0.3)";
+    } else {
+      // Aquamarine / Turquoise Stage
+      primaryColor = "#38b2ac";
+      secondaryColor = "#4fd1c5";
+      glowColor = `rgba(56, 178, 172, ${0.24 + 0.08 * Math.sin(time * 1.5)})`;
+      borderColor = "rgba(56, 178, 172, 0.7)";
+      shadowColor = "rgba(56, 178, 172, 0.3)";
+    }
+
+    // Apply dynamic illumination to the rectangle
+    box.style.setProperty("--hedouda-x", `${pctX.toFixed(1)}%`);
+    box.style.setProperty("--hedouda-y", `${pctY.toFixed(1)}%`);
+    box.style.setProperty("--hedouda-px", `${currentX.toFixed(1)}px`);
+    box.style.setProperty("--hedouda-py", `${currentY.toFixed(1)}px`);
+    box.style.setProperty("--hedouda-color-primary", primaryColor);
+    box.style.setProperty("--hedouda-color-secondary", secondaryColor);
+    box.style.setProperty("--hedouda-glow-color", glowColor);
+    box.style.setProperty("--hedouda-border-color", borderColor);
+    box.style.setProperty("--hedouda-shadow-color", shadowColor);
+
+    spiritFrameId = requestAnimationFrame(loop);
+  }
+
+  loop();
+
+  window.resumeHedoudaSpirit = function() {
+    if (!spiritFrameId) loop();
   };
 }
