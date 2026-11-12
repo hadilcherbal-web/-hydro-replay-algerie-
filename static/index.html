@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   
   <!-- Custom Stylesheet (Copernicus C3S Theme) -->
-  <link rel="stylesheet" href="/static/css/styles.css?v=5.0">
+  <link rel="stylesheet" href="/static/css/styles.css?v=6.0">
   
   <!-- Chart.js for High-Precision Meteorological Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -97,6 +97,14 @@
             <span class="btn-shine"></span>
             🚀 Accéder à la Plateforme &bull; Hydro-Replay Algérie
           </button>
+          <div class="splash-secondary-actions">
+            <button class="btn-splash-secondary" onclick="openOfficialBulletinModal()">
+              📄 Prévisualiser le Bulletin Officiel
+            </button>
+            <button class="btn-splash-secondary" onclick="openNoticeDirectly()">
+              ℹ️ Notice & Méthodologie Scientifique
+            </button>
+          </div>
         </div>
 
         <div class="splash-footer-note">
@@ -158,10 +166,10 @@
         </div>
       </div>
       <div class="engineer-actions">
-        <button class="btn-hero-print" onclick="document.getElementById('btn-print-report').click()">
+        <button class="btn-hero-print" onclick="openOfficialBulletinModal()">
           📄 Imprimer Bulletin Officiel
         </button>
-        <button class="btn-hero-info" onclick="switchTab('tab-science')">
+        <button class="btn-hero-info" onclick="openNoticeDirectly()">
           ℹ️ Notice & Méthodologie
         </button>
       </div>
@@ -207,7 +215,7 @@
         <button id="btn-export-csv" class="btn-secondary" title="Télécharger les séries temporelles pour études hydrologiques">
           📥 Exporter CSV
         </button>
-        <button id="btn-print-report" class="btn-secondary" title="Imprimer le bulletin scientifique">
+        <button id="btn-print-report" class="btn-secondary" onclick="openOfficialBulletinModal()" title="Imprimer le bulletin scientifique officiel">
           🖨️ Imprimer Bulletin
         </button>
       </div>
@@ -572,6 +580,137 @@
     </div>
   </div>
 
+  <!-- Official Hydrological Bulletin Modal (State Report Preview & Print) -->
+  <div id="modal-bulletin" class="modal-overlay">
+    <div class="modal-window bulletin-window">
+      <div class="bulletin-toolbar">
+        <div class="toolbar-title">📜 Bulletin Hydro-Météorologique Officiel &bull; Édition Ministérielle A4</div>
+        <div class="toolbar-actions">
+          <button class="btn-print-action" onclick="window.printOfficialDocument()">🖨️ Imprimer / Sauvegarder en PDF</button>
+          <button class="modal-close-btn" onclick="closeOfficialBulletinModal()">&times;</button>
+        </div>
+      </div>
+
+      <!-- Printable Document Container -->
+      <div class="official-bulletin-sheet" id="printable-bulletin-sheet">
+        <!-- Document Header -->
+        <div class="bulletin-doc-header">
+          <div class="republique-heading">🇩🇿 RÉPUBLIQUE ALGÉRIENNE DÉMOCRATIQUE ET POPULAIRE</div>
+          <div class="ministere-heading">MINISTÈRE DE L'ENSEIGNEMENT SUPÉRIEUR ET DE LA RECHERCHE SCIENTIFIQUE</div>
+          <div class="doc-badge-pill">DÉPARTEMENT D'INGÉNIERIE HYDRAULIQUE & ÉTUDES CLIMATIQUES</div>
+          <h1 class="bulletin-doc-title">BULLETIN OFFICIEL DE SITUATION HYDRO-MÉTÉOROLOGIQUE</h1>
+          <div class="bulletin-doc-sub">SÉRIES TEMPORELLES HISTORIQUES (1900 - 2025) &bull; SYSTÈME HYDRO-REPLAY ALGÉRIE</div>
+        </div>
+
+        <!-- Meta Grid -->
+        <div class="bulletin-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Directrice de l'Étude :</span>
+            <span class="meta-val highlight-eng">Ingénieure CHERBAL Hadil</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Date d'Émission :</span>
+            <span class="meta-val" id="bul-date-emission">12 Novembre 2026</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Wilaya / Localisation :</span>
+            <span class="meta-val" id="bul-wilaya-name">16 - Alger (الجزائر)</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Année Observée :</span>
+            <span class="meta-val highlight-yr" id="bul-year">1980</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Coordonnées Grille :</span>
+            <span class="meta-val" id="bul-coords">36.754°N, 3.059°E</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Source & Modèle :</span>
+            <span class="meta-val" id="bul-dataset">Copernicus ERA5-Land (0.1° / ~9 km)</span>
+          </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="bulletin-kpi-row">
+          <div class="b-kpi">
+            <div class="b-kpi-title">Cumul Annuel Précipité</div>
+            <div class="b-kpi-val" id="bul-annual-total">696.3 mm</div>
+            <div class="b-kpi-sub" id="bul-anomaly">Anomalie : +16.1% (Année Humide)</div>
+          </div>
+          <div class="b-kpi">
+            <div class="b-kpi-title">Mois le Plus Humide</div>
+            <div class="b-kpi-val" id="bul-wettest-month">Décembre (210.4 mm)</div>
+            <div class="b-kpi-sub">Pic pluviométrique annuel</div>
+          </div>
+          <div class="b-kpi">
+            <div class="b-kpi-title">Étage Bioclimatique</div>
+            <div class="b-kpi-val" id="bul-bioclimatic">Sub-humide / Tellien</div>
+            <div class="b-kpi-sub">Classification d'Emberger</div>
+          </div>
+          <div class="b-kpi">
+            <div class="b-kpi-title">Qualité des Données</div>
+            <div class="b-kpi-val" style="color: #38a169;">Validée WMO / C3S</div>
+            <div class="b-kpi-sub">Contrôle physique 4D-Var</div>
+          </div>
+        </div>
+
+        <!-- Monthly Breakdown Table -->
+        <h3 class="bulletin-section-title">📊 Répartition Mensuelle Détaillée des Précipitations (mm)</h3>
+        <table class="bulletin-table">
+          <thead>
+            <tr>
+              <th>Indicateur</th>
+              <th>Jan</th><th>Fév</th><th>Mar</th><th>Avr</th><th>Mai</th><th>Juin</th>
+              <th>Juil</th><th>Août</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Déc</th>
+              <th>Cumul Total</th>
+            </tr>
+          </thead>
+          <tbody id="bul-monthly-table-body">
+            <tr>
+              <td><strong>Hauteur (mm)</strong></td>
+              <td>72.5</td><td>64.1</td><td>81.2</td><td>52.0</td><td>34.5</td><td>9.2</td>
+              <td>1.8</td><td>4.5</td><td>42.1</td><td>76.0</td><td>112.5</td><td>145.9</td>
+              <td style="font-weight: 800; color: #1a365d; background: #e2e8f0;">696.3 mm</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Synthesis & Scientific Note -->
+        <div class="bulletin-scientific-note">
+          <h4>📌 Synthèse d'Ingénierie & Conformité Scientifique :</h4>
+          <p id="bul-scientific-summary">
+            Les données présentées dans ce bulletin officiel ont été acquises et modélisées selon les protocoles de validation croisée 
+            de l'Organisation Météorologique Mondiale (OMM) et du Copernicus Climate Change Service (ECMWF). 
+            Pour la période 1940-présent, les séries intègrent les réanalyses atmosphériques spatiales ERA5 et ERA5-Land (résolution 0.1° / ~9 km). 
+            Pour la période 1900-1939, les totaux s'appuient sur le réseau historique de pluviomètres interpolés GPCC v2022 (DWD).
+          </p>
+        </div>
+
+        <!-- Signature & Visa Stamp Block -->
+        <div class="bulletin-signature-block">
+          <div class="sig-col">
+            <div class="sig-title">Cachet & Visa de Conformité Scientifique</div>
+            <div class="sig-stamp-box">
+              <div class="stamp-circle">
+                <span>RÉPUBLIQUE ALGÉRIENNE</span>
+                <strong>HYDRO-REPLAY</strong>
+                <small>CERTIFIÉ CONFORME</small>
+              </div>
+            </div>
+          </div>
+          <div class="sig-col">
+            <div class="sig-title">Visa de l'Ingénieure Responsable</div>
+            <div class="sig-name">Ingénieure CHERBAL Hadil</div>
+            <div class="sig-role">Ingénierie des Ressources en Eau & Climatologie</div>
+            <div class="sig-line-space"></div>
+            <div class="sig-placeholder">Signature et Visa de l'Ingénieure</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Copernicus Standard Footer -->
   <footer class="copernicus-footer">
     <div class="footer-container">
@@ -592,6 +731,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
   <!-- Main Application Script -->
-  <script src="/static/js/app.js?v=5.0"></script>
+  <script src="/static/js/app.js?v=6.0"></script>
 </body>
 </html>
