@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algeria Hydro-Replay | Explorateur Historique des Précipitations (1900-Présent)</title>
+  
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Stylesheet (Copernicus C3S Theme) -->
+  <link rel="stylesheet" href="/static/css/styles.css?v=2.3">
+  
+  <!-- Chart.js for High-Precision Meteorological Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Copernicus EU Banner -->
+  <header class="copernicus-top-banner">
+    <div class="brand-container">
+      <div class="brand-left">
+        <span class="brand-badge">Weather Replay Algérie</span>
+        <div class="brand-title">
+          <h1>HYDRO-REPLAY ALGÉRIE (1900 - Présent)</h1>
+          <p>Explorateur hydro-météorologique scientifique des précipitations d'Algérie inspiré de Copernicus</p>
+        </div>
+      </div>
+      <div class="brand-sources">
+        <div class="engineer-header-chip">
+          <span class="chip-icon">🎓</span>
+          <div class="chip-text">
+            <strong>المهندسة شربال هديل</strong>
+            <small>Ing. Cherbal Hadil</small>
+          </div>
+        </div>
+        <div class="source-pill">
+          <span class="source-dot dot-blue"></span>
+          <span>GPCC (1900-1939)</span>
+        </div>
+        <div class="source-pill">
+          <span class="source-dot dot-green"></span>
+          <span>ERA5-Land (1940+)</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Academic Presentation Hero / Ingénieure Cherbal Hadil -->
+  <section class="engineer-hero-banner" id="engineer-hero-banner">
+    <div class="engineer-hero-container">
+      <div class="engineer-identity">
+        <div class="engineer-badge-pill">
+          <span class="eng-icon">🇩🇿</span>
+          <span>RÉPUBLIQUE ALGÉRIENNE &bull; PROJET D'INGÉNIERIE HYDRAULIQUE & CLIMATIQUE</span>
+        </div>
+        <h2 class="engineer-title">
+          المهندسة شربال هديل <span class="eng-title-fr">&bull; Ingénieure CHERBAL Hadil</span>
+        </h2>
+        <p class="engineer-subtitle">
+          Plateforme Scientifique d'Exploration, de Modélisation et de Reconstitution des Précipitations Historiques en Algérie (1900 - 2025)
+        </p>
+        <div class="engineer-meta-tags">
+          <span class="meta-tag">🏛️ Étude Hydrologique & Génie de l'Eau</span>
+          <span class="meta-tag">🛰️ Données : Copernicus ERA5-Land (ECMWF) & WMO / GPCC</span>
+          <span class="meta-tag">📊 Couverture : 58 Wilayas & Communes d'Algérie</span>
+        </div>
+      </div>
+      <div class="engineer-actions">
+        <button class="btn-hero-print" onclick="document.getElementById('btn-print-report').click()">
+          📄 Imprimer Bulletin Officiel
+        </button>
+        <button class="btn-hero-info" onclick="switchTab('tab-science')">
+          ℹ️ Notice & Méthodologie
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Geographic Controls Bar -->
+  <section class="control-navbar">
+    <div class="control-container">
+      <!-- Wilaya Selector -->
+      <div class="control-group">
+        <label class="control-label" for="select-wilaya">Wilaya (58) :</label>
+        <select id="select-wilaya" class="input-select">
+          <option value="">Chargement des wilayas...</option>
+        </select>
+      </div>
+
+      <!-- Commune Selector -->
+      <div class="control-group">
+        <label class="control-label" for="select-commune">Commune / Ville :</label>
+        <select id="select-commune" class="input-select">
+          <option value="">Sélectionnez d'abord une wilaya</option>
+        </select>
+      </div>
+
+      <!-- Autocomplete Search -->
+      <div class="control-group search-box-wrapper">
+        <label class="control-label" for="input-search">Recherche :</label>
+        <input type="text" id="input-search" class="input-text" placeholder="Rechercher wilaya ou commune..." autocomplete="off">
+        <div id="search-results" class="search-results-dropdown"></div>
+      </div>
+
+      <!-- Precise GPS Coordinates -->
+      <div class="control-group">
+        <label class="control-label">Point GPS :</label>
+        <input type="number" id="input-lat" class="input-text" style="width: 85px;" step="0.001" placeholder="Lat (N)">
+        <input type="number" id="input-lon" class="input-text" style="width: 85px;" step="0.001" placeholder="Lon (E)">
+        <button id="btn-apply-coords" class="btn-secondary">Appliquer</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="control-group">
+        <button id="btn-export-csv" class="btn-secondary" title="Télécharger les séries temporelles pour études hydrologiques">
+          📥 Exporter CSV
+        </button>
+        <button id="btn-print-report" class="btn-secondary" title="Imprimer le bulletin scientifique">
+          🖨️ Imprimer Bulletin
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline Scrubber -->
+  <section class="timeline-bar-section">
+    <div class="timeline-container">
+      <div class="year-display-card">
+        <span id="current-year-val">1980</span>
+        <span id="year-source-badge" class="source-tag era5">ERA5</span>
+      </div>
+
+      <button id="btn-play-timeline" class="play-button" title="Lancer l'animation chronologique">
+        <span id="play-icon">▶</span> Replay
+      </button>
+
+      <div class="timeline-slider-wrapper">
+        <input type="range" id="timeline-slider" class="timeline-slider" min="1900" max="2025" value="1980" step="1">
+        <div class="timeline-ticks">
+          <span>1900 (GPCC)</span>
+          <span>1920</span>
+          <span>1940 (ERA5)</span>
+          <span>1960</span>
+          <span>1980</span>
+          <span>2000</span>
+          <span>2025</span>
+        </div>
+      </div>
+
+      <div class="decade-shortcuts">
+        <button class="btn-decade" data-year="1904">1904 (Pluvial)</button>
+        <button class="btn-decade" data-year="1921">1921 (Sécheresse)</button>
+        <button class="btn-decade" data-year="1950">1950</button>
+        <button class="btn-decade" data-year="1980">1980</button>
+        <button class="btn-decade" data-year="2001">2001 (Bab El Oued)</button>
+        <button class="btn-decade" data-year="2024">2024</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="dashboard-main">
+    
+    <!-- Scientific Provenance Banner -->
+    <div id="provenance-banner" class="provenance-banner">
+      <div class="provenance-info">
+        <span class="prov-icon">🛰️</span>
+        <div class="prov-text">
+          <h4 id="prov-dataset-name">ERA5 / ERA5-Land Reanalysis (ECMWF / Copernicus C3S)</h4>
+          <p id="prov-observation-desc">Modèle d'assimilation atmosphérique globale 4D-Var avec observations sol et satellitaires.</p>
+        </div>
+      </div>
+      <div class="prov-details" id="prov-tech-details">
+        Résolution : 0.1° (~9 km) | Pas de temps : Journalier & Horaire | Qualité : Contrôlée ECMWF
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-navigation">
+      <button class="tab-btn active" data-tab="tab-dashboard">
+        📊 Tableau de Bord Annuel & Mensuel
+      </button>
+      <button class="tab-btn" data-tab="tab-map">
+        🗺️ Carte des Précipitations d'Algérie
+      </button>
+      <button class="tab-btn" data-tab="tab-trends">
+        📈 Évolution Long-Terme & Tendances (1900-2025)
+      </button>
+      <button class="tab-btn" data-tab="tab-compare">
+        ⚖️ Comparateur Historique & Multi-Sites
+      </button>
+      <button class="tab-btn" data-tab="tab-science">
+        ℹ️ Notice Scientifique & Provenance
+      </button>
+    </nav>
+
+    <!-- Tab 1: Dashboard View -->
+    <section id="tab-dashboard" class="tab-content">
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Cumul Annuel Précipitations</div>
+          <div class="kpi-value"><span id="kpi-annual-sum">--</span> <span class="kpi-unit">mm</span></div>
+          <div class="kpi-subtext" id="kpi-anomaly-text">Calcul de l'anomalie...</div>
+        </div>
+
+        <div class="kpi-card gold">
+          <div class="kpi-title">Mois le Plus Humide</div>
+          <div class="kpi-value" style="font-size: 22px;" id="kpi-max-month">--</div>
+          <div class="kpi-subtext" id="kpi-max-month-sub">Pic pluviométrique de l'année</div>
+        </div>
+
+        <div class="kpi-card green">
+          <div class="kpi-title">Jours de Pluie (>= 1.0 mm)</div>
+          <div class="kpi-value"><span id="kpi-rainy-days">--</span> <span class="kpi-unit">jours</span></div>
+          <div class="kpi-subtext" id="kpi-rainy-sub">Fréquence des précipitations</div>
+        </div>
+
+        <div class="kpi-card red">
+          <div class="kpi-title">Régime & Intensité Bioclimatique</div>
+          <div class="kpi-value" style="font-size: 20px;">
+            <span id="kpi-intensity-badge" class="badge-intensity" style="background: #3182ce;">--</span>
+          </div>
+          <div class="kpi-subtext" id="kpi-zone-text">Étage bioclimatique</div>
+        </div>
+      </div>
+
+      <!-- Main Charts Layout -->
+      <div class="charts-grid-2">
+        <!-- Monthly Bar Chart -->
+        <div class="content-card">
+          <div class="card-header">
+            <h2>🌧️ Distribution Mensuelle des Précipitations (<span class="card-year-tag">1980</span>)</h2>
+            <div class="card-actions">
+              <span style="font-size: 11px; color: var(--copernicus-muted);">Unité : Millimètres (mm)</span>
+            </div>
+          </div>
+          <div style="position: relative; height: 350px;">
+            <canvas id="chart-monthly"></canvas>
+          </div>
+        </div>
+
+        <!-- Monthly Breakdown Table & Extreme Day -->
+        <div class="content-card">
+          <div class="card-header">
+            <h2>📅 Événement Extrême & Statistiques</h2>
+            <button id="btn-view-hourly" class="btn-secondary" style="display: none;">
+              ⚡ Replay Horaire
+            </button>
+          </div>
+          <div id="extreme-event-card" style="background: #edf2f7; padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+            <div style="font-size: 11px; font-weight: 700; color: #4a5568; text-transform: uppercase;">Journée la plus pluvieuse :</div>
+            <div style="font-size: 18px; font-weight: bold; color: #2b6cb0; margin-top: 4px;" id="extreme-day-val">--</div>
+            <div style="font-size: 12px; color: #4a5568;" id="extreme-day-date">--</div>
+          </div>
+
+          <div style="max-height: 250px; overflow-y: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mois</th>
+                  <th>Précip. (mm)</th>
+                  <th>Jours Pluie</th>
+                </tr>
+              </thead>
+              <tbody id="table-monthly-body">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Algeria Interactive Map -->
+    <section id="tab-map" class="tab-content" style="display: none;">
+      <div class="content-card">
+        <div class="card-header">
+          <h2>🗺️ Répartition Géographique des Précipitations en Algérie (<span class="card-year-tag">1980</span>)</h2>
+          <div class="card-actions">
+            <span style="font-size: 12px; color: var(--copernicus-muted);">
+              Cliquez sur une wilaya ou sur la carte pour explorer ses données historiques.
+            </span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 16px;">
+          <div id="algeria-map"></div>
+
+          <div class="map-legend-box">
+            <h3 style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--copernicus-navy);">
+              Échelle d'Intensité des Pluies
+            </h3>
+            
+            <div class="legend-item">
+              <div class="legend-color-box" style="background: #3182ce;"></div>
+              <div><strong>Très élevé (> 900 mm)</strong><br><span style="color: #718096; font-size: 11px;">Zone Tellienne / Humide</span></div>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-color-box" style="background: #48bb78;"></div>
+              <div><strong>Élevé (600 - 900 mm)</strong><br><span style="color: #718096; font-size: 11px;">Zone Sub-humide</span></div>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-color-box" style="background: #ecc94b;"></div>
+              <div><strong>Modéré (300 - 600 mm)</strong><br><span style="color: #718096; font-size: 11px;">Hauts Plateaux / Semi-aride</span></div>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-color-box" style="background: #ed8936;"></div>
+              <div><strong>Faible (100 - 300 mm)</strong><br><span style="color: #718096; font-size: 11px;">Atlas Saharien / Aride</span></div>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-color-box" style="background: #e53e3e;"></div>
+              <div><strong>Très faible (< 100 mm)</strong><br><span style="color: #718096; font-size: 11px;">Sahara / Hyper-aride</span></div>
+            </div>
+
+            <hr style="margin: 14px 0; border: none; border-top: 1px solid #e2e8f0;">
+
+            <div style="font-size: 11px; color: #4a5568; line-height: 1.4;">
+              <strong>Réseau national :</strong> 58 Wilayas représentées. Les cercles indiquent le cumul annuel projeté selon les réanalyses ERA5 et le réseau GPCC.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Long-term Trends (1900-2025) -->
+    <section id="tab-trends" class="tab-content" style="display: none;">
+      <div class="content-card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <h2>📈 Chronologie des Précipitations Annuelles (1900 - Présent)</h2>
+          <div class="card-actions">
+            <span style="font-size: 12px; color: var(--copernicus-muted);">
+              Barres : Précipitations Annuelles | Ligne : Moyenne Mobile 10 ans
+            </span>
+          </div>
+        </div>
+        <div style="position: relative; height: 380px;">
+          <canvas id="chart-timeline"></canvas>
+        </div>
+      </div>
+
+      <!-- Climate Normals & Decadal Drift -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Normale Climatologique 1961 - 1990</div>
+          <div class="kpi-value"><span id="trend-norm-61-90">--</span> <span class="kpi-unit">mm/an</span></div>
+          <div class="kpi-subtext">Normale standard OMM (30 ans)</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-title">Normale Récente 1991 - 2020</div>
+          <div class="kpi-value"><span id="trend-norm-91-20">--</span> <span class="kpi-unit">mm/an</span></div>
+          <div class="kpi-subtext" id="trend-norm-shift">Variation : -- %</div>
+        </div>
+
+        <div class="kpi-card green">
+          <div class="kpi-title">Année Historique la Plus Humide</div>
+          <div class="kpi-value" style="font-size: 24px;" id="trend-wettest-year">--</div>
+          <div class="kpi-subtext" id="trend-wettest-val">Cumul record</div>
+        </div>
+
+        <div class="kpi-card red">
+          <div class="kpi-title">Année Historique la Plus Sèche</div>
+          <div class="kpi-value" style="font-size: 24px;" id="trend-driest-year">--</div>
+          <div class="kpi-subtext" id="trend-driest-val">Sécheresse sévère</div>
+        </div>
+
+        <div class="kpi-card gold">
+          <div class="kpi-title">Tendance Décennale (Pente de Sen)</div>
+          <div class="kpi-value" style="font-size: 24px;" id="trend-slope">--</div>
+          <div class="kpi-subtext" id="trend-direction">Évolution séculaire</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Historical Comparison -->
+    <section id="tab-compare" class="tab-content" style="display: none;">
+      <div class="content-card">
+        <div class="card-header">
+          <h2>⚖️ Comparateur Historique Multi-Années & Multi-Wilayas</h2>
+        </div>
+
+        <div class="comparison-controls">
+          <div>
+            <label class="control-label">Sélectionner des années à comparer :</label>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <input type="number" id="input-compare-year" class="input-text" min="1900" max="2025" placeholder="Année (ex: 1950)" style="width: 120px;">
+              <button id="btn-add-compare-year" class="btn-secondary">+ Ajouter Année</button>
+            </div>
+            <div id="compare-years-tags" class="tag-list">
+              <!-- Default comparison tags -->
+            </div>
+          </div>
+
+          <div style="flex: 1;">
+            <label class="control-label">Préréglages d'analyse historique :</label>
+            <div style="display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap;">
+              <button class="btn-secondary" id="preset-algiers-centennial">Alger à travers les âges (1900, 1950, 1980, 2000, 2024)</button>
+              <button class="btn-secondary" id="preset-regional-contrast">Contraste Régional (Alger vs Oran vs Constantine vs Ouargla)</button>
+              <button class="btn-secondary" id="preset-drought-cycles">Cycles de Sécheresse (1921, 1945, 1983, 1994, 2020)</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="position: relative; height: 380px; margin-top: 20px;">
+          <canvas id="chart-compare"></canvas>
+        </div>
+
+        <div id="compare-table-wrapper" style="margin-top: 24px;">
+          <!-- Table injected dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Scientific Documentation -->
+    <section id="tab-science" class="tab-content" style="display: none;">
+      <div class="content-card">
+        <div class="card-header">
+          <h2>ℹ️ Méthodologie, Provenance des Données & Rigueur Scientifique</h2>
+        </div>
+
+        <div style="max-width: 900px; line-height: 1.7; font-size: 14px; color: #2d3748;">
+          <h3 style="color: var(--copernicus-blue); margin-top: 10px;">1. Principe de Transparence Scientifique</h3>
+          <p>
+            Ce système applique rigoureusement les directives climatologiques de l'Organisation Météorologique Mondiale (OMM) 
+            et du programme <strong>Copernicus Climate Change Service (C3S)</strong>. 
+            Aucune donnée historique n'est inventée ou simulée artificiellement.
+          </p>
+
+          <h3 style="color: var(--copernicus-blue); margin-top: 16px;">2. Base de Données GPCC (1900 - 1939)</h3>
+          <p>
+            Pour la période 1900-1939, les données proviennent du <strong>Global Precipitation Climatology Centre (GPCC)</strong>, 
+            opéré par le Deutscher Wetterdienst (DWD).
+            Il s'agit d'analyses mensuelles interpolées à <strong>0.5° (~50 km)</strong> de résolution spatiale, 
+            construites à partir des relevés des stations pluviométriques in-situ de l'époque coloniale et méditerranéenne.
+          </p>
+          <div style="background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; margin: 10px 0; border-radius: 4px;">
+            <strong>Avertissement scientifique :</strong> Les mesures quotidiennes et horaires exactes n'existaient pas 
+            de manière continue sur l'ensemble du territoire algérien avant 1940. Par conséquent, pour 1900-1939, 
+            seuls les totaux mensuels et annuels GPCC sont restitués.
+          </div>
+
+          <h3 style="color: var(--copernicus-blue); margin-top: 16px;">3. Réanalyses ERA5 & ERA5-Land (1940 - Présent)</h3>
+          <p>
+            À partir de 1940, le système exploite les réanalyses atmosphériques globales <strong>ERA5 (0.25°) et ERA5-Land (0.1° / ~9 km)</strong> 
+            produites par le Centre Européen pour les Prévisions Météorologiques à Moyen Terme (ECMWF) sous l'égide de Copernicus.
+            Cette réanalyse assimile des millions de mesures barométriques, radiosondages, stations sol et radiomètres satellitaires 
+            dans un modèle physique 4D-Var, fournissant des cumuls journaliers et horaires réels en millimètres (mm).
+          </p>
+
+          <h3 style="color: var(--copernicus-blue); margin-top: 16px;">4. Liens Officiels & Archives</h3>
+          <ul style="margin-left: 20px; margin-top: 8px;">
+            <li><strong>Portail GPCC Open Data :</strong> <a href="https://opendata.dwd.de/climate_environment/GPCC/" target="_blank" style="color: #3182ce;">https://opendata.dwd.de/climate_environment/GPCC/</a></li>
+            <li><strong>Copernicus Climate Data Store (CDS) :</strong> <a href="https://cds.climate.copernicus.eu/" target="_blank" style="color: #3182ce;">https://cds.climate.copernicus.eu/</a></li>
+            <li><strong>Copernicus Atmosphere Monitoring :</strong> <a href="https://apps.atmosphere.copernicus.eu/" target="_blank" style="color: #3182ce;">https://apps.atmosphere.copernicus.eu/</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Hourly Deluge Modal -->
+  <div id="modal-hourly" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 id="modal-hourly-title">⚡ Profil Horaire des Précipitations (ERA5)</h3>
+        <button id="btn-close-modal" class="modal-close-btn">&times;</button>
+      </div>
+      <p style="font-size: 13px; color: var(--copernicus-muted); margin-bottom: 16px;">
+        Reconstitution horaire de l'épisode pluvieux pour analyser l'intensité de pointe (mm/heure).
+      </p>
+      <div style="position: relative; height: 320px;">
+        <canvas id="chart-hourly"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Copernicus Standard Footer -->
+  <footer class="copernicus-footer">
+    <div class="footer-container">
+      <div>
+        <strong>Algeria Hydro-Replay</strong> — Système d'Information Hydrologique et Météorologique d'Algérie.<br>
+        <span style="color: var(--copernicus-gold); font-weight: 600;">Conception & Ingénierie : المهندسة شربال هديل &bull; Ingénieure CHERBAL Hadil</span><br>
+        Développé pour les études scientifiques, l'ingénierie hydraulique et la recherche climatologique.
+      </div>
+      <div class="footer-links">
+        <span>© 2026 Ing. Cherbal Hadil &bull; Copernicus & GPCC</span>
+        <a href="https://opendata.dwd.de/climate_environment/GPCC/" target="_blank">DWD GPCC</a>
+        <a href="https://cds.climate.copernicus.eu/" target="_blank">Copernicus CDS</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Main Application Script -->
+  <script src="/static/js/app.js?v=2.2"></script>
+</body>
+</html>
