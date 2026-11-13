@@ -170,15 +170,21 @@ function initUI() {
   });
 
   // Export CSV
-  document.getElementById("btn-export-csv").addEventListener("click", () => {
-    const url = `/api/export/csv?lat=${state.lat}&lon=${state.lon}&start_year=1900&end_year=2025&location_name=${encodeURIComponent(state.locationName)}`;
-    window.open(url, "_blank");
-  });
+  const btnExport = document.getElementById("btn-export-csv");
+  if (btnExport) {
+    btnExport.addEventListener("click", () => {
+      const url = `/api/export/csv?lat=${state.lat}&lon=${state.lon}&start_year=1900&end_year=2025&location_name=${encodeURIComponent(state.locationName)}`;
+      window.open(url, "_blank");
+    });
+  }
 
   // Print Report
-  document.getElementById("btn-print-report").addEventListener("click", () => {
-    window.print();
-  });
+  const btnPrint = document.getElementById("btn-print-report");
+  if (btnPrint) {
+    btnPrint.addEventListener("click", () => {
+      window.print();
+    });
+  }
 
   // Hourly Deluge Modal
   document.getElementById("btn-view-hourly").addEventListener("click", openHourlyModal);
