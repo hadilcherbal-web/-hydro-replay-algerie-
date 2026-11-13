@@ -1334,7 +1334,7 @@ window.openNoticeDirectly = function() {
       const err = document.getElementById("access-code-error");
       if (err) {
         err.classList.remove("hidden");
-        err.textContent = "🔒 Veuillez déverrouiller avec le code (2005) pour consulter la notice.";
+        err.textContent = "🔒 Veuillez déverrouiller avec le code d'accès pour consulter la notice.";
       }
     }
     return;
