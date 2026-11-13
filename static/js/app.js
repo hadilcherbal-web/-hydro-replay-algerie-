@@ -96,6 +96,12 @@ function initUI() {
   window.showWelcomeScreen = function() {
     if (splash) {
       splash.classList.remove("hidden");
+      const titleEl = document.querySelector(".minimal-project-name");
+      if (titleEl) {
+        titleEl.style.animation = "none";
+        void titleEl.offsetWidth; // trigger reflow
+        titleEl.style.animation = "slideInFromLeftSmooth 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both";
+      }
       if (inputCode) {
         inputCode.value = "";
         inputCode.focus();
