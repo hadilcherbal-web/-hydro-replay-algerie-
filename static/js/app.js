@@ -1013,7 +1013,7 @@ function renderHourlyChart(data) {
   });
 }
 
-// Animated Twinkling Constellations & Meteorological Starfield
+// Hydrological Waterfall & Cascading Precipitation Curtain Animation
 function initStarsAnimation() {
   const canvas = document.getElementById("stars-canvas");
   if (!canvas) return;
@@ -1028,32 +1028,50 @@ function initStarsAnimation() {
     height = canvas.height = window.innerHeight;
   });
 
-  const numStars = Math.min(130, Math.max(65, Math.floor((width * height) / 11000)));
-  const stars = [];
-  const colors = [
-    { r: 251, g: 211, b: 141 }, // Gold / Amber
-    { r: 99, g: 179, b: 237 },  // Copernicus Cyan
-    { r: 255, g: 255, b: 255 },  // Pure White
-    { r: 129, g: 230, b: 217 }   // Hydro Aquamarine
+  // Waterfall Streams / Hydrological Droplets
+  const numStreams = Math.min(180, Math.max(90, Math.floor(width / 7)));
+  const streams = [];
+
+  const waterColors = [
+    { r: 99, g: 179, b: 237 },   // Copernicus Cyan
+    { r: 129, g: 230, b: 217 },  // Aquamarine
+    { r: 56, g: 178, b: 172 },   // Deep Turquoise
+    { r: 255, g: 255, b: 255 },  // Pure Crystal Foam
+    { r: 66, g: 153, b: 225 }    // Hydraulic Deep Blue
   ];
 
-  for (let i = 0; i < numStars; i++) {
-    const c = colors[Math.floor(Math.random() * colors.length)];
-    stars.push({
+  for (let i = 0; i < numStreams; i++) {
+    const col = waterColors[Math.floor(Math.random() * waterColors.length)];
+    streams.push({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35,
-      radius: Math.random() * 2.2 + 0.8,
-      baseAlpha: Math.random() * 0.5 + 0.35,
-      twinkleSpeed: Math.random() * 0.025 + 0.01,
-      phase: Math.random() * Math.PI * 2,
-      color: c
+      vy: Math.random() * 4.5 + 3.2, // vertical waterfall speed
+      vx: (Math.random() - 0.5) * 0.4, // subtle horizontal drift
+      length: Math.random() * 38 + 18, // stream length
+      width: Math.random() * 1.6 + 0.8,
+      alpha: Math.random() * 0.5 + 0.35,
+      color: col
     });
+  }
+
+  // Water Surface Ripples
+  const ripples = [];
+  function addRipple(x, y, color) {
+    if (ripples.length < 24) {
+      ripples.push({
+        x: x,
+        y: y,
+        r: 2,
+        maxR: Math.random() * 28 + 14,
+        alpha: 0.6,
+        color: color
+      });
+    }
   }
 
   let animationFrameId = null;
   const splash = document.getElementById("welcome-splash-screen");
+  let waveTime = 0;
 
   function render() {
     if (splash && splash.classList.contains("hidden")) {
@@ -1062,49 +1080,88 @@ function initStarsAnimation() {
     }
 
     ctx.clearRect(0, 0, width, height);
+    waveTime += 0.025;
 
-    // Update & draw stars
-    for (let i = 0; i < stars.length; i++) {
-      const s = stars[i];
-      s.x += s.vx;
+    // 1. Draw Flowing Water Baseline Waves at the bottom
+    const waveY = height - 50;
+    ctx.beginPath();
+    ctx.moveTo(0, height);
+    for (let x = 0; x <= width; x += 15) {
+      const y = waveY + Math.sin(x * 0.008 + waveTime) * 12 + Math.cos(x * 0.015 - waveTime * 0.8) * 6;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(width, height);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(10, 36, 74, 0.45)";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(0, height);
+    for (let x = 0; x <= width; x += 15) {
+      const y = waveY + 14 + Math.sin(x * 0.01 - waveTime * 1.2) * 10;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(width, height);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(56, 178, 172, 0.12)";
+    ctx.fill();
+
+    // 2. Draw Waterfall Streams (Vertical Cascading Ribbons)
+    for (let i = 0; i < streams.length; i++) {
+      const s = streams[i];
       s.y += s.vy;
-      s.phase += s.twinkleSpeed;
+      s.x += s.vx;
 
-      // Wrap around screen edges
+      // When hitting bottom water horizon, spawn ripple and reset to top
+      if (s.y > height - 30) {
+        if (Math.random() < 0.35) {
+          addRipple(s.x, height - 30 + Math.random() * 20, s.color);
+        }
+        s.y = -s.length - Math.random() * 80;
+        s.x = Math.random() * width;
+      }
       if (s.x < 0) s.x = width;
       if (s.x > width) s.x = 0;
-      if (s.y < 0) s.y = height;
-      if (s.y > height) s.y = 0;
 
-      const alpha = s.baseAlpha + Math.sin(s.phase) * 0.35;
-      const clampedAlpha = Math.max(0.12, Math.min(1, alpha));
+      // Create stream gradient (bright droplet head, fading tail)
+      const grad = ctx.createLinearGradient(s.x, s.y, s.x, s.y + s.length);
+      grad.addColorStop(0, `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, 0)`);
+      grad.addColorStop(0.7, `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${(s.alpha * 0.5).toFixed(3)})`);
+      grad.addColorStop(1, `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${s.alpha.toFixed(3)})`);
 
-      // Draw star glow
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${clampedAlpha})`;
-      ctx.shadowBlur = s.radius > 1.8 ? 14 : 7;
-      ctx.shadowColor = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, 0.85)`;
-      ctx.fill();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x, s.y + s.length);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = s.width;
+      ctx.lineCap = "round";
+      ctx.stroke();
 
-      // Connect nearby stars with faint constellation lines
-      for (let j = i + 1; j < stars.length; j++) {
-        const s2 = stars[j];
-        const dx = s.x - s2.x;
-        const dy = s.y - s2.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 95) {
-          ctx.beginPath();
-          ctx.moveTo(s.x, s.y);
-          ctx.lineTo(s2.x, s2.y);
-          const lineAlpha = (1 - dist / 95) * 0.16;
-          ctx.strokeStyle = `rgba(99, 179, 237, ${lineAlpha})`;
-          ctx.lineWidth = 0.7;
-          ctx.shadowBlur = 0;
-          ctx.stroke();
-        }
+      // Droplet core spark at the head of prominent streams
+      if (s.width > 1.4) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y + s.length, s.width * 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${s.color.r}, ${s.color.g}, ${s.color.b}, ${(s.alpha * 0.9).toFixed(3)})`;
+        ctx.fill();
       }
+    }
+
+    // 3. Draw Water Surface Ripples
+    for (let k = ripples.length - 1; k >= 0; k--) {
+      const r = ripples[k];
+      r.r += 0.8;
+      r.alpha -= 0.016;
+
+      if (r.alpha <= 0 || r.r >= r.maxR) {
+        ripples.splice(k, 1);
+        continue;
+      }
+
+      ctx.beginPath();
+      ctx.ellipse(r.x, r.y, r.r * 2.2, r.r * 0.7, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${r.color.r}, ${r.color.g}, ${r.color.b}, ${r.alpha.toFixed(3)})`;
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
     }
 
     animationFrameId = requestAnimationFrame(render);

@@ -939,7 +939,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle at 50% 20%, #0d284f 0%, #061324 60%, #020712 100%);
+  background: radial-gradient(circle at 50% 15%, #0e3464 0%, #071c36 50%, #030a16 100%);
   z-index: 99999;
   display: flex;
   align-items: center;
