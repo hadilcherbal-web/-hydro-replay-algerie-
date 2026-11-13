@@ -47,12 +47,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Initialize UI Event Listeners
 function initUI() {
-  // Welcome Splash Screen
+  // Welcome Splash Screen with Password Protection (2005)
   const splash = document.getElementById("welcome-splash-screen");
   const btnEnter = document.getElementById("btn-enter-platform");
-  if (btnEnter && splash) {
-    btnEnter.addEventListener("click", () => {
-      splash.classList.add("hidden");
+  const inputCode = document.getElementById("input-access-code");
+  const errorMsg = document.getElementById("access-code-error");
+
+  let isUnlocked = false;
+  const VALID_CODES = ["2005", "123"];
+
+  function handleUnlock() {
+    if (!inputCode) {
+      if (splash) splash.classList.add("hidden");
+      return;
+    }
+
+    const val = inputCode.value.trim();
+    if (VALID_CODES.includes(val)) {
+      isUnlocked = true;
+      if (errorMsg) errorMsg.classList.add("hidden");
+      if (splash) splash.classList.add("hidden");
+      inputCode.value = "";
+    } else {
+      if (errorMsg) {
+        errorMsg.classList.remove("hidden");
+        errorMsg.textContent = "❌ Mot de passe incorrect. Accès réservé aux personnes autorisées.";
+      }
+      inputCode.classList.remove("input-shake");
+      void inputCode.offsetWidth; // trigger reflow
+      inputCode.classList.add("input-shake");
+      inputCode.focus();
+    }
+  }
+
+  if (btnEnter) {
+    btnEnter.addEventListener("click", handleUnlock);
+  }
+
+  if (inputCode) {
+    inputCode.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        handleUnlock();
+      }
     });
   }
 
@@ -60,6 +96,10 @@ function initUI() {
   window.showWelcomeScreen = function() {
     if (splash) {
       splash.classList.remove("hidden");
+      if (inputCode) {
+        inputCode.value = "";
+        inputCode.focus();
+      }
       if (window.resumeStarsAnimation) window.resumeStarsAnimation();
       if (window.resumeHedoudaSpirit) window.resumeHedoudaSpirit();
     }
@@ -1284,7 +1324,21 @@ window.printOfficialDocument = function() {
 
 window.openNoticeDirectly = function() {
   const splash = document.getElementById("welcome-splash-screen");
-  if (splash) splash.classList.add("hidden");
+  const inputCode = document.getElementById("input-access-code");
+  if (splash && !splash.classList.contains("hidden")) {
+    if (inputCode) {
+      inputCode.focus();
+      inputCode.classList.remove("input-shake");
+      void inputCode.offsetWidth;
+      inputCode.classList.add("input-shake");
+      const err = document.getElementById("access-code-error");
+      if (err) {
+        err.classList.remove("hidden");
+        err.textContent = "🔒 Veuillez déverrouiller avec le code (2005) pour consulter la notice.";
+      }
+    }
+    return;
+  }
   switchTab("tab-science");
   const el = document.getElementById("tab-science");
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
