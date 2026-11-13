@@ -1075,115 +1075,121 @@ function initStarsAnimation() {
   };
 }
 
-// Hedouda Dynamic Luminescence Spirit & Interactive Reactive Illumination
+// Border Chaser — Glowing light ribbon running around the rectangle edges
 function initHedoudaLightSpirit() {
-  const box = document.getElementById("splash-hero-box");
-  const spirit = document.getElementById("hedouda-spirit");
+  const box   = document.getElementById("splash-hero-box");
+  const cnv   = document.getElementById("border-chaser-canvas");
   const splash = document.getElementById("welcome-splash-screen");
-  if (!box || !spirit) return;
+  if (!box || !cnv) return;
+
+  const ctx = cnv.getContext("2d");
+
+  // Color palette cycling around the perimeter (position 0→1 maps to full perimeter)
+  // Amber → Cyan → Turquoise → Magenta → back to Amber
+  const palette = [
+    { stop: 0.00, r: 230, g: 161, b:  23 },   // Golden Amber
+    { stop: 0.25, r:  99, g: 179, b: 237 },   // Copernicus Cyan
+    { stop: 0.50, r:  56, g: 178, b: 172 },   // Turquoise
+    { stop: 0.75, r: 180, g:  85, b: 230 },   // Violet
+    { stop: 1.00, r: 230, g: 161, b:  23 },   // back to Amber
+  ];
+
+  function lerpColor(t) {
+    // t in [0,1]
+    t = ((t % 1) + 1) % 1;
+    for (let i = 0; i < palette.length - 1; i++) {
+      const a = palette[i], b = palette[i + 1];
+      if (t >= a.stop && t <= b.stop) {
+        const f = (t - a.stop) / (b.stop - a.stop);
+        return {
+          r: Math.round(a.r + f * (b.r - a.r)),
+          g: Math.round(a.g + f * (b.g - a.g)),
+          b: Math.round(a.b + f * (b.b - a.b)),
+        };
+      }
+    }
+    return palette[0];
+  }
+
+  // Build perimeter path: given t∈[0,1], return {x, y} on rectangle border
+  function perimeterPoint(t, W, H, R) {
+    // Approximate rounded-rect perimeter as straight sides (close enough for canvas)
+    const perimeter = 2 * (W + H);
+    const d = t * perimeter;
+    if (d < W)                           return { x: d,          y: 0 };
+    if (d < W + H)                       return { x: W,          y: d - W };
+    if (d < 2 * W + H)                   return { x: W - (d - W - H), y: H };
+    return                                      { x: 0,          y: H - (d - 2*W - H) };
+  }
 
   let time = 0;
-  let isMouseOver = false;
-  let mouseX = 0;
-  let mouseY = 0;
+  let frameId = null;
+  const TRAIL = 0.38;   // what fraction of perimeter the glow tail covers
+  const STEPS = 220;    // smoothness of trail
 
-  let currentX = 0;
-  let currentY = 0;
-
-  box.addEventListener("mousemove", (e) => {
-    const rect = box.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
-    isMouseOver = true;
-  });
-
-  box.addEventListener("mouseleave", () => {
-    isMouseOver = false;
-  });
-
-  let spiritFrameId = null;
+  function resize() {
+    cnv.width  = box.offsetWidth;
+    cnv.height = box.offsetHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
 
   function loop() {
     if (splash && splash.classList.contains("hidden")) {
-      spiritFrameId = null;
+      frameId = null;
       return;
     }
 
-    const rect = box.getBoundingClientRect();
-    const width = Math.max(300, rect.width);
-    const height = Math.max(200, rect.height);
+    const W = cnv.width;
+    const H = cnv.height;
+    ctx.clearRect(0, 0, W, H);
 
-    if (currentX === 0) {
-      currentX = width / 2;
-      currentY = height / 3;
+    time += 0.003;   // speed — lower = slower rotation
+
+    // Draw the glowing trail along the perimeter
+    for (let i = 0; i <= STEPS; i++) {
+      const frac = i / STEPS;
+      const t    = ((time + frac * TRAIL) % 1 + 1) % 1;
+      const pt   = perimeterPoint(t, W, H, 20);
+      const col  = lerpColor(t + time * 0.5);
+
+      // Alpha: bright at head, fade toward tail
+      const alpha = Math.pow(frac, 0.5) * 0.95;
+
+      // Glow width pulses gently
+      const glowW = 18 + 10 * Math.sin(time * 6 + frac * 8);
+
+      const grad = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, glowW);
+      grad.addColorStop(0,   `rgba(${col.r},${col.g},${col.b},${(alpha * 0.9).toFixed(3)})`);
+      grad.addColorStop(0.4, `rgba(${col.r},${col.g},${col.b},${(alpha * 0.4).toFixed(3)})`);
+      grad.addColorStop(1,   `rgba(${col.r},${col.g},${col.b},0)`);
+
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, glowW, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
     }
 
-    time += 0.02;
+    // Bright core dot at the head
+    const headT  = (time % 1 + 1) % 1;
+    const headPt = perimeterPoint(headT, W, H, 20);
+    const headCol = lerpColor(headT + time * 0.5);
+    const coreGrad = ctx.createRadialGradient(headPt.x, headPt.y, 0, headPt.x, headPt.y, 8);
+    coreGrad.addColorStop(0, "#ffffff");
+    coreGrad.addColorStop(0.3, `rgba(${headCol.r},${headCol.g},${headCol.b},0.95)`);
+    coreGrad.addColorStop(1, `rgba(${headCol.r},${headCol.g},${headCol.b},0)`);
+    ctx.beginPath();
+    ctx.arc(headPt.x, headPt.y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = coreGrad;
+    ctx.fill();
 
-    // Target position: Smooth organic lemniscate / float motion or mouse tracking
-    let targetX, targetY;
-    if (isMouseOver) {
-      targetX = mouseX;
-      targetY = mouseY;
-    } else {
-      // Graceful organic celestial path across the rectangle
-      targetX = width * (0.5 + 0.38 * Math.sin(time * 0.75) * Math.cos(time * 0.35));
-      targetY = height * (0.5 + 0.36 * Math.sin(time * 0.6 + 1.2));
-    }
-
-    // Smooth inertia interpolation
-    currentX += (targetX - currentX) * 0.07;
-    currentY += (targetY - currentY) * 0.07;
-
-    const pctX = Math.max(5, Math.min(95, (currentX / width) * 100));
-    const pctY = Math.max(5, Math.min(95, (currentY / height) * 100));
-
-    // Dynamic chromatic shift depending on Hedouda's position:
-    // Left: Amber/Gold (#e6a117) -> Center: Hydro Cyan (#63b3ed) -> Right: Emerald/Turquoise (#38b2ac)
-    const normX = currentX / width;
-    let primaryColor, secondaryColor, glowColor, borderColor, shadowColor;
-
-    if (normX < 0.4) {
-      // Golden Amber Stage
-      primaryColor = "#e6a117";
-      secondaryColor = "#f6ad55";
-      glowColor = `rgba(230, 161, 23, ${0.24 + 0.08 * Math.sin(time * 1.5)})`;
-      borderColor = "rgba(230, 161, 23, 0.7)";
-      shadowColor = "rgba(230, 161, 23, 0.3)";
-    } else if (normX < 0.7) {
-      // Copernicus Cyan / Blue Stage
-      primaryColor = "#63b3ed";
-      secondaryColor = "#3182ce";
-      glowColor = `rgba(99, 179, 237, ${0.26 + 0.08 * Math.sin(time * 1.5)})`;
-      borderColor = "rgba(99, 179, 237, 0.7)";
-      shadowColor = "rgba(99, 179, 237, 0.3)";
-    } else {
-      // Aquamarine / Turquoise Stage
-      primaryColor = "#38b2ac";
-      secondaryColor = "#4fd1c5";
-      glowColor = `rgba(56, 178, 172, ${0.24 + 0.08 * Math.sin(time * 1.5)})`;
-      borderColor = "rgba(56, 178, 172, 0.7)";
-      shadowColor = "rgba(56, 178, 172, 0.3)";
-    }
-
-    // Apply dynamic illumination to the rectangle
-    box.style.setProperty("--hedouda-x", `${pctX.toFixed(1)}%`);
-    box.style.setProperty("--hedouda-y", `${pctY.toFixed(1)}%`);
-    box.style.setProperty("--hedouda-px", `${currentX.toFixed(1)}px`);
-    box.style.setProperty("--hedouda-py", `${currentY.toFixed(1)}px`);
-    box.style.setProperty("--hedouda-color-primary", primaryColor);
-    box.style.setProperty("--hedouda-color-secondary", secondaryColor);
-    box.style.setProperty("--hedouda-glow-color", glowColor);
-    box.style.setProperty("--hedouda-border-color", borderColor);
-    box.style.setProperty("--hedouda-shadow-color", shadowColor);
-
-    spiritFrameId = requestAnimationFrame(loop);
+    frameId = requestAnimationFrame(loop);
   }
 
   loop();
 
-  window.resumeHedoudaSpirit = function() {
-    if (!spiritFrameId) loop();
+  window.resumeHedoudaSpirit = function () {
+    if (!frameId) loop();
   };
 }
 
