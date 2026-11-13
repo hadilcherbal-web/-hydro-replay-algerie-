@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   
   <!-- Custom Stylesheet (Copernicus C3S Theme) -->
-  <link rel="stylesheet" href="/static/css/styles.css?v=8.0">
+  <link rel="stylesheet" href="/static/css/styles.css?v=9.0">
   
   <!-- Chart.js for High-Precision Meteorological Charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -23,89 +23,73 @@
 
     <div class="welcome-splash-content">
       
-      <div class="splash-header-crest">
-        <span class="splash-badge-flag">🇩🇿 RÉPUBLIQUE ALGÉRIENNE DÉMOCRATIQUE ET POPULAIRE</span>
-        <span class="splash-badge-inst">Ministère de l'Enseignement Supérieur et de la Recherche Scientifique</span>
-      </div>
-
-      <div class="splash-hero-box" id="splash-hero-box">
+      <div class="splash-hero-box splash-minimal-card" id="splash-hero-box">
         <!-- Border Chaser Light Ribbon -->
         <canvas class="border-chaser-canvas" id="border-chaser-canvas"></canvas>
 
-        <div class="splash-greeting-chip">
-          <span class="chip-star">✨</span>
-          <span>ESPACE D'INGÉNIERIE & ÉTUDES HYDRO-CLIMATIQUES</span>
+        <div class="minimal-header-inst">
+          <span class="minimal-flag">🇩🇿</span>
+          <span>RÉPUBLIQUE ALGÉRIENNE DÉMOCRATIQUE ET POPULAIRE</span>
+          <span class="inst-sep">·</span>
+          <span>MESRS</span>
         </div>
 
-        <h1 class="splash-main-title">
-          Bienvenue, Ingénieure Cherbal Hadil
-        </h1>
-        <div class="splash-subtitle-fr">
-          Ingénierie des Ressources en Eau &bull; Sciences de l'Environnement & Climatologie
+        <div class="minimal-seal-line">
+          <span class="minimal-tag">Études &amp; Modélisation Hydro-Climatiques</span>
         </div>
 
-        <p class="splash-description">
-          Plateforme Scientifique d'Exploration, de Modélisation et de Reconstitution des Précipitations Historiques en Algérie (1900 - 2025), conçue selon les standards scientifiques du programme européen <strong>Copernicus Weather Replay</strong>.
-        </p>
-
-        <!-- Scientific Indicators Ribbon -->
-        <div class="splash-stats-ribbon">
-          <div class="stat-pill">
-            <span class="stat-num">125</span>
-            <span class="stat-desc">Années d'Historique (1900-2025)</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-num">58</span>
-            <span class="stat-desc">Wilayas & Communes Couvertes</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-num">0.1°</span>
-            <span class="stat-desc">Haute Résolution (~9 km ERA5-Land)</span>
-          </div>
-          <div class="stat-pill">
-            <span class="stat-num">4D-Var</span>
-            <span class="stat-desc">Assimilation Physique ECMWF</span>
-          </div>
+        <div class="minimal-hero-section">
+          <span class="minimal-welcome-text">Bienvenue</span>
+          <h1 class="minimal-engineer-title">Ingénieure CHERBAL Hadil</h1>
+          <p class="minimal-engineer-sub">Ingénierie des Ressources en Eau &bull; Sciences de l'Environnement &amp; Climatologie</p>
         </div>
 
-        <!-- Highlights Grid -->
-        <div class="splash-features-grid">
-          <div class="splash-feat-card">
-            <div class="feat-icon">⏳</div>
-            <h4>Chronologie Séculaire Continue</h4>
-            <p>Séries temporelles ininterrompues de 1900 à 2025 pour l'analyse des cycles pluvieux décennaux et des sécheresses historiques.</p>
+        <div class="minimal-divider"></div>
+
+        <div class="minimal-project-section">
+          <div class="minimal-project-badge">PROJET SCIENTIFIQUE &bull; C3S STANDARDS</div>
+          <h2 class="minimal-project-name">HYDRO-REPLAY ALGÉRIE</h2>
+          <p class="minimal-project-desc">
+            Système d'Analyse et de Reconstitution Séculaire des Précipitations (1900 – 2025)<br>
+            Basé sur les données d'observation in-situ et les réanalyses <strong>Copernicus ERA5 &bull; ECMWF &bull; WMO</strong>
+          </p>
+        </div>
+
+        <!-- 3 Elegant Minimal Metrics -->
+        <div class="minimal-metrics-row">
+          <div class="m-metric">
+            <span class="m-val">125 Ans</span>
+            <span class="m-lbl">Série Historique Continue (1900–2025)</span>
           </div>
-          <div class="splash-feat-card">
-            <div class="feat-icon">🛰️</div>
-            <h4>Réanalyses Copernicus ERA5</h4>
-            <p>Données atmosphériques de pointe réanalysées par l'ECMWF, associant mesures in-situ validées WMO et radiométrie satellitaire.</p>
+          <div class="m-metric-sep"></div>
+          <div class="m-metric">
+            <span class="m-val">58 Wilayas</span>
+            <span class="m-lbl">Couverture Territoriale Complète</span>
           </div>
-          <div class="splash-feat-card">
-            <div class="feat-icon">🗺️</div>
-            <h4>Cartographie Dynamique & SIG</h4>
-            <p>Distribution spatiale interactive sur l'ensemble de l'Algérie, classification bioclimatique d'Emberger et bulletin officiel imprimable.</p>
+          <div class="m-metric-sep"></div>
+          <div class="m-metric">
+            <span class="m-val">0.1° (~9 km)</span>
+            <span class="m-lbl">Résolution Spatiale ERA5-Land</span>
           </div>
         </div>
 
         <!-- Action CTA -->
-        <div class="splash-cta-wrapper">
-          <button id="btn-enter-platform" class="btn-splash-enter">
+        <div class="minimal-actions">
+          <button id="btn-enter-platform" class="btn-splash-enter btn-minimal-enter">
             <span class="btn-shine"></span>
-            🚀 Accéder à la Plateforme &bull; Hydro-Replay Algérie
+            Accéder à la Plateforme &nbsp;→
           </button>
-          <div class="splash-secondary-actions">
-            <button class="btn-splash-secondary" onclick="openOfficialBulletinModal()">
+          <div class="minimal-sub-actions">
+            <button type="button" class="btn-text-link" onclick="openOfficialBulletinModal()">
               📄 Prévisualiser le Bulletin Officiel
             </button>
-            <button class="btn-splash-secondary" onclick="openNoticeDirectly()">
-              ℹ️ Notice & Méthodologie Scientifique
+            <span class="sub-sep">•</span>
+            <button type="button" class="btn-text-link" onclick="openNoticeDirectly()">
+              ℹ️ Notice &amp; Méthodologie Scientifique
             </button>
           </div>
         </div>
 
-        <div class="splash-footer-note">
-          Conception & Modélisation Hydrologique par <strong>l'Ingénieure CHERBAL Hadil</strong> &bull; Données Officielles WMO, GPCC & Copernicus C3S
-        </div>
       </div>
 
     </div>
@@ -727,6 +711,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
   <!-- Main Application Script -->
-  <script src="/static/js/app.js?v=8.0"></script>
+  <script src="/static/js/app.js?v=9.0"></script>
 </body>
 </html>
